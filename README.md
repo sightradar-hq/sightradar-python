@@ -1,6 +1,9 @@
 <p align="center">
   <a href="https://sightradar.com">
-    <img src="https://assets.sightradar.com/brand/sightradar-logo-lockup.svg" alt="SightRadar — Face Recognition API" width="360">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://assets.sightradar.com/brand/sightradar-logo-lockup-dark.svg">
+      <img src="https://assets.sightradar.com/brand/sightradar-logo-lockup.svg" alt="SightRadar — Face Recognition API" width="360">
+    </picture>
   </a>
 </p>
 
