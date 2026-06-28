@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sightradar"
-version = "1.0.0"
+version = "1.0.1"
 description = "Official Python client for the SightRadar face recognition API"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "SightRadar" }]
-keywords = ["face recognition", "facial recognition", "api", "sightradar", "rekognition"]
+keywords = ["face recognition", "facial recognition", "face recognition api", "face detection", "face search", "face matching", "face verification", "aws rekognition alternative", "rekognition", "sightradar", "biometrics", "computer vision", "api"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -25,6 +25,8 @@ dependencies = []
 Homepage = "https://sightradar.com"
 Documentation = "https://sightradar.com/docs"
 Source = "https://github.com/sightradar-hq/sightradar-python"
+Pricing = "https://sightradar.com/pricing"
+"Migrate from AWS Rekognition" = "https://sightradar.com/migrate"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/sightradar"]
