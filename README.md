@@ -1,7 +1,54 @@
-# SightRadar — Python client
+<p align="center">
+  <a href="https://sightradar.com">
+    <img src="https://assets.sightradar.com/brand/sightradar-logo-lockup.svg" alt="SightRadar — Face Recognition API" width="360">
+  </a>
+</p>
 
-Official Python client for the [SightRadar](https://sightradar.com) face
-recognition API. Zero runtime dependencies (built on the standard library).
+<h1 align="center">SightRadar — Face Recognition API for Python</h1>
+
+<p align="center">
+  <strong>A high-accuracy face recognition API and a drop-in AWS Rekognition alternative.</strong><br>
+  Official Python client for the <a href="https://sightradar.com">SightRadar</a> facial recognition API — face detection, 1:1 verification, and 1:N face search with zero runtime dependencies.
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/sightradar/"><img src="https://img.shields.io/pypi/v/sightradar?color=ff3b2f&label=pypi" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/sightradar/"><img src="https://img.shields.io/pypi/pyversions/sightradar" alt="Python versions"></a>
+  <a href="https://github.com/sightradar-hq/sightradar-python/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/sightradar?color=1b1712" alt="License: MIT"></a>
+  <a href="https://sightradar.com/docs"><img src="https://img.shields.io/badge/docs-sightradar.com-ffce4a" alt="Documentation"></a>
+</p>
+
+---
+
+## What is SightRadar?
+
+**SightRadar** is a fast, accurate, and affordable **face recognition API** for developers. This is the official **Python SDK** — a thin, fully-typed wrapper over the [SightRadar facial recognition API](https://sightradar.com) that lets you add **face detection**, **face matching**, **1:1 face verification**, and **1:N face search** to any application in minutes.
+
+If you are looking for an **AWS Rekognition alternative** with **high-accuracy face recognition**, simpler pricing, and a cleaner API, SightRadar is built for you. The SDK has **zero runtime dependencies** (built entirely on the Python standard library), supports Python 3.8+, and ships typed responses for every endpoint.
+
+- 🎯 **High-accuracy facial recognition** — state-of-the-art embeddings with quality gating for reliable matches
+- ⚡ **Fast face search** — index millions of faces and search a collection with a single selfie
+- 🔁 **Drop-in AWS Rekognition alternative** — familiar `index` / `search` / `detect` / `compare` operations
+- 💸 **Transparent, usage-based pricing** — pay per call, no minimums ([see pricing](https://sightradar.com/pricing))
+- 🪶 **Zero dependencies** — pure standard-library client, easy to audit and vendor
+
+> Get a free API key at **[sightradar.com](https://sightradar.com/login)** and start building.
+
+## SightRadar vs. AWS Rekognition
+
+Already wrote code against **AWS Rekognition**? SightRadar mirrors the operations you know — `IndexFaces`, `SearchFacesByImage`, `DetectFaces`, `CompareFaces` — so migrating is mostly a find-and-replace, not a rewrite. See the [migration guide](https://sightradar.com/migrate).
+
+| | SightRadar | AWS Rekognition |
+|---|---|---|
+| Face detection API | ✅ | ✅ |
+| 1:1 face verification (compare) | ✅ | ✅ |
+| 1:N face search (collections) | ✅ | ✅ |
+| Selfie / liveness-style registration | ✅ | ⚠️ limited |
+| Zero-dependency SDK | ✅ | ❌ (boto3) |
+| Transparent per-call pricing | ✅ | ⚠️ complex tiers |
+| Free API key to start | ✅ | ⚠️ AWS account required |
+
+## Install
 
 ```bash
 pip install sightradar
@@ -18,7 +65,7 @@ from sightradar import SightRadar
 sr = SightRadar(api_key="frs_...")   # or: SightRadar() with SIGHTRADAR_API_KEY set
 ```
 
-## Core workflow
+## Core workflow — index and search faces
 
 ```python
 # 1. Create a collection to hold faces.
@@ -44,7 +91,7 @@ else:
 det = sr.detect(url="https://example.com/photo.jpg")
 print(det.detected_face_count, det.gated_face_count)
 
-# 1:1 verification between two faces.
+# 1:1 face verification between two faces.
 cmp = sr.compare(
     source_url="https://example.com/a.jpg",
     target_url="https://example.com/b.jpg",
@@ -88,6 +135,24 @@ Index / search / detect / register-selfie accept exactly one image source:
 
 `search` additionally accepts `embedding=` (a 512-d vector).
 
+## Resources
+
+- 🌐 **Website:** [sightradar.com](https://sightradar.com)
+- 📚 **API documentation:** [sightradar.com/docs](https://sightradar.com/docs)
+- 🔑 **Get an API key:** [sightradar.com/login](https://sightradar.com/login)
+- 💸 **Pricing:** [sightradar.com/pricing](https://sightradar.com/pricing)
+- 🔄 **Migrate from AWS Rekognition:** [sightradar.com/migrate](https://sightradar.com/migrate)
+- 📦 **Node.js / TypeScript SDK:** [github.com/sightradar-hq/sightradar-node](https://github.com/sightradar-hq/sightradar-node)
+
 ## License
 
-MIT
+MIT © [SightRadar](https://sightradar.com)
+
+---
+
+<p align="center">
+  <sub>
+    SightRadar — high-accuracy <a href="https://sightradar.com">face recognition API</a> and <a href="https://sightradar.com/migrate">AWS Rekognition alternative</a>.
+    Face detection, facial recognition, 1:1 verification, and 1:N face search for developers.
+  </sub>
+</p>
