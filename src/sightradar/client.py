@@ -36,7 +36,7 @@ from .models import (
     Webhook,
 )
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 # HTTP statuses that are safe to retry when retries are enabled.
 _RETRYABLE_STATUSES = frozenset({429, 502, 503})
