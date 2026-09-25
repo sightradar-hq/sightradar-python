@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Import + build smoke test
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+          python -c "import sys; sys.path.insert(0, 'src'); import sightradar; print('sightradar', sightradar.__version__)"
