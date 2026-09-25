@@ -214,7 +214,7 @@ class SightRadar:
         return [Collection.from_dict(c) for c in (items or [])]
 
     def describe_collection(self, collection_id: str) -> Collection:
-        d = self._request("GET", f"/v1/collections/{collection_id}")
+        d = self._request("GET", f"/v1/collections/{_seg(collection_id)}")
         return Collection.from_dict(d)
 
     def delete_collection(
@@ -244,13 +244,13 @@ class SightRadar:
         if intent:
             query["intent"] = intent
         d = self._request(
-            "DELETE", f"/v1/collections/{collection_id}", query=query or None
+            "DELETE", f"/v1/collections/{_seg(collection_id)}", query=query or None
         )
         return DeletionReceipt.from_dict(d)
 
     def restore_collection(self, collection_id: str) -> Dict[str, Any]:
         """Undo a soft delete while the collection is still in its grace window."""
-        return self._request("POST", f"/v1/collections/{collection_id}/restore")
+        return self._request("POST", f"/v1/collections/{_seg(collection_id)}/restore")
 
     def deletion_status(self, collection_id: str) -> DeletionStatus:
         """Authoritative status of an asynchronous collection deletion.
@@ -258,12 +258,12 @@ class SightRadar:
         Poll until ``phase == "completed"`` and ``verified_zero`` is true before
         treating the vectors as gone.
         """
-        d = self._request("GET", f"/v1/collections/{collection_id}/deletion")
+        d = self._request("GET", f"/v1/collections/{_seg(collection_id)}/deletion")
         return DeletionStatus.from_dict(d)
 
     def collection_metrics(self, collection_id: str) -> Collection:
         """Live face/selfie counts straight from the engine."""
-        d = self._request("GET", f"/v1/collections/{collection_id}/metrics")
+        d = self._request("GET", f"/v1/collections/{_seg(collection_id)}/metrics")
         return Collection.from_dict(d)
 
     def delete_photo(
@@ -282,7 +282,7 @@ class SightRadar:
             query["compliance"] = "true"
         return self._request(
             "DELETE",
-            f"/v1/collections/{collection_id}/photos/{quote(photo_id, safe='')}",
+            f"/v1/collections/{_seg(collection_id)}/photos/{_seg(photo_id)}",
             query=query or None,
         )
 
@@ -290,7 +290,7 @@ class SightRadar:
         """Undo a soft photo delete while its vectors still exist."""
         return self._request(
             "POST",
-            f"/v1/collections/{collection_id}/photos/{quote(photo_id, safe='')}/restore",
+            f"/v1/collections/{_seg(collection_id)}/photos/{_seg(photo_id)}/restore",
         )
 
     # -- index / search -----------------------------------------------------
@@ -310,7 +310,7 @@ class SightRadar:
         Provide exactly one image source: ``url``, ``gcs_key``, or ``file``.
         Pass ``idempotency_key`` so a retried call is never charged twice.
         """
-        path = f"/v1/collections/{collection_id}/index"
+        path = f"/v1/collections/{_seg(collection_id)}/index"
         if file is not None:
             body, ctype = self._multipart(file, {"photoId": photo_id})
             d = self._request(
@@ -339,7 +339,7 @@ class SightRadar:
 
         Provide one of ``url``, ``gcs_key``, ``embedding``, or ``file``.
         """
-        path = f"/v1/collections/{collection_id}/search"
+        path = f"/v1/collections/{_seg(collection_id)}/search"
         if file is not None:
             body, ctype = self._multipart(
                 file, {"threshold": threshold, "limit": limit}
@@ -383,7 +383,7 @@ class SightRadar:
         if limit is not None:
             payload["limit"] = limit
         d = self._request(
-            "POST", f"/v1/collections/{collection_id}/search-by-id", json_body=payload
+            "POST", f"/v1/collections/{_seg(collection_id)}/search-by-id", json_body=payload
         )
         return SearchResult.from_dict(d)
 
@@ -406,7 +406,7 @@ class SightRadar:
         """
         if not user_id:
             raise SightRadarError("register_selfie requires a non-empty user_id")
-        path = f"/v1/collections/{collection_id}/selfies"
+        path = f"/v1/collections/{_seg(collection_id)}/selfies"
         if file is not None:
             body, ctype = self._multipart(
                 file, {"userId": user_id, "selfieId": selfie_id}
@@ -512,7 +512,7 @@ class SightRadar:
 
     def get_batch(self, batch_id: str) -> Batch:
         """Get the status of a batch job."""
-        d = self._request("GET", f"/v1/batches/{batch_id}")
+        d = self._request("GET", f"/v1/batches/{_seg(batch_id)}")
         return Batch.from_dict(d)
 
     def list_batches(self, *, limit: Optional[int] = None) -> List[Batch]:
@@ -535,7 +535,7 @@ class SightRadar:
         """
         return self._request(
             "GET",
-            f"/v1/batches/{batch_id}/photos",
+            f"/v1/batches/{_seg(batch_id)}/photos",
             query={"limit": limit, "after_index": after_index},
         )
 
@@ -559,7 +559,7 @@ class SightRadar:
 
     def delete_webhook(self, webhook_id: str) -> Dict[str, Any]:
         """Delete a webhook endpoint."""
-        return self._request("DELETE", f"/v1/webhooks/{webhook_id}")
+        return self._request("DELETE", f"/v1/webhooks/{_seg(webhook_id)}")
 
 
 # -- webhook signature verification -----------------------------------------
@@ -608,6 +608,16 @@ def verify_webhook_signature(
 
 
 # -- helpers ----------------------------------------------------------------
+
+
+def _seg(value: str) -> str:
+    """Percent-encode one path segment (collection / photo / batch / webhook id).
+
+    urllib refuses to send a non-ASCII request line, and an unencoded "/" or
+    "?" would change the route, so every id we splice into a path goes through
+    here. The gateway decodes it back to the original id.
+    """
+    return quote(str(value), safe="")
 
 
 def _parse_retry_after(value: Optional[str]) -> Optional[float]:

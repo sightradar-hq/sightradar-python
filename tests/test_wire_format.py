@@ -186,3 +186,34 @@ def test_register_selfie_missing_user_id_makes_no_request():
     with patch, pytest.raises(SightRadarError):
         sr.register_selfie("c", "", url="https://x/a.jpg")
     assert "path" not in seen
+
+
+def test_collection_id_is_percent_encoded_in_every_path():
+    """1.1.0 spliced collection_id raw into f-string paths; a non-ASCII or
+    slash-bearing id crashed urllib with UnicodeEncodeError before any request."""
+    cid = "événement 😀/2026?x"
+    from urllib.parse import quote
+    enc = quote(cid, safe="")
+    sr = SightRadar(api_key="frs_test")
+    calls = [
+        (lambda: sr.describe_collection(cid), f"/v1/collections/{enc}", {}),
+        (lambda: sr.collection_metrics(cid), f"/v1/collections/{enc}/metrics", {}),
+        (lambda: sr.index(cid, url="https://x/a.jpg"), f"/v1/collections/{enc}/index", {"collection_id": cid, "indexed": 0}),
+        (lambda: sr.search(cid, url="https://x/a.jpg"), f"/v1/collections/{enc}/search", {"matches": []}),
+        (lambda: sr.search_by_id(cid, "1"), f"/v1/collections/{enc}/search-by-id", {"matches": []}),
+        (lambda: sr.register_selfie(cid, "u", url="https://x/a.jpg"), f"/v1/collections/{enc}/selfies", {"face_found": True}),
+        (lambda: sr.delete_collection(cid), f"/v1/collections/{enc}", {"status": "deletion_pending"}),
+        (lambda: sr.restore_collection(cid), f"/v1/collections/{enc}/restore", {}),
+        (lambda: sr.deletion_status(cid), f"/v1/collections/{enc}/deletion", {}),
+        (lambda: sr.delete_photo(cid, "p/1"), f"/v1/collections/{enc}/photos/p%2F1", {}),
+        (lambda: sr.restore_photo(cid, "p/1"), f"/v1/collections/{enc}/photos/p%2F1/restore", {}),
+        (lambda: sr.get_batch("b/1"), "/v1/batches/b%2F1", {}),
+        (lambda: sr.get_batch_photos("b/1"), "/v1/batches/b%2F1/photos", {}),
+        (lambda: sr.delete_webhook("w/1"), "/v1/webhooks/w%2F1", {}),
+    ]
+    for fn, want_path, payload in calls:
+        seen, patch = _capture(payload)
+        with patch:
+            fn()
+        # urlparse() decodes nothing, so compare the raw encoded path
+        assert seen["path"] == want_path, (seen["path"], want_path)
