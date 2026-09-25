@@ -166,3 +166,23 @@ def test_webhook_model_reads_endpoint_id_and_secret_once():
         w = sr.register_webhook("https://h/x")
     assert w.webhook_endpoint_id == "we1" and w.webhook_id == "we1" and w.secret == "whsec_1"
     assert json.loads(seen["body"]) == {"url": "https://h/x"}
+
+
+def test_register_selfie_never_forwards_photo_id_in_either_path():
+    """photoId is the index key; the selfies endpoint does not accept it."""
+    seen, patch = _capture({"face_found": True, "point_id": "p1"})
+    sr = SightRadar(api_key="frs_test")
+    with patch:
+        sr.register_selfie("c", "u1", url="https://x/a.jpg")
+    assert "photoId" not in json.loads(seen["body"])
+    with patch:
+        sr.register_selfie("c", "u1", file=b"\xff\xd8")
+    assert b'name="photoId"' not in seen["body"]
+
+
+def test_register_selfie_missing_user_id_makes_no_request():
+    seen, patch = _capture({})
+    sr = SightRadar(api_key="frs_test")
+    with patch, pytest.raises(SightRadarError):
+        sr.register_selfie("c", "", url="https://x/a.jpg")
+    assert "path" not in seen
